@@ -1,0 +1,56 @@
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #fff;
+    font-family: 'Arial', sans-serif;
+}
+
+.label-container {
+    width: 300px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #000;
+    page-break-inside: avoid;
+}
+
+.label {
+    text-align: center;
+    background: #d4af37; /* Gold color */
+    color: #000; /* Black text */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.label h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.label p {
+    margin: 10px 0 0;
+    font-size: 16px;
+}
+
+/* Printer-friendly styles */
+@media print {
+    body {
+        width: 100%;
+        height: auto;
+    }
+
+    .label-container {
+        border: none;
+        box-shadow: none;
+    }
+
+    .label {
+        box-shadow: none;
+    }
+}

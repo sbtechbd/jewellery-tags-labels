@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+    <title>Input Form with Dynamic Barcode and PDF</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .barcode {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <form id="barcodeForm">
+                <div class="form-group">
+                    <label for="companyName">Company Name:</label>
+                    <input type="text" class="form-control" id="companyName" name="companyName" value="Name">
+                </div>
+                <div class="form-group">
+                    <label for="grossWt">Gross Wt:</label>
+                    <input type="text" class="form-control" id="grossWt" name="grossWt" value="2.964">
+                </div>
+                <div class="form-group">
+                    <label for="netWt">Net Wt:</label>
+                    <input type="text" class="form-control" id="netWt" name="netWt" value="2.964">
+                </div>
+                <div class="form-group">
+                    <label for="currentDate">Date:</label>
+                    <input type="text" class="form-control" id="currentDate" name="currentDate" readonly>
+                </div>
+                <div class="barcode">
+                    <svg id="barcode"></svg>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Generate Barcode</button>
+                    <button type="button" class="btn btn-secondary" id="printButton">Print</button>
+                    <button type="button" class="btn btn-success" id="pdfButton">Download PDF</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- JsBarcode and jsPDF libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // Auto-generate current date
+            const currentDate = new Date().toLocaleDateString();
+            document.getElementById('currentDate').value = currentDate;
+
+            // Barcode generation
+            document.getElementById('barcodeForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const companyName = document.getElementById('companyName').value;
+                const grossWt = document.getElementById('grossWt').value;
+                const netWt = document.getElementById('netWt').value;
+                const barcodeData = `${companyName}-${grossWt}-${netWt}`;
+
+                JsBarcode("#barcode", barcodeData, {
+                    format: "CODE128",
+                    displayValue: true,
+                    fontSize: 18,
+                    height: 30,
+	   
+                });
+            });
+
+            // Print functionality
+            document.getElementById('printButton').addEventListener('click', function() {
+                window.print();
+            });
+
+            // PDF generation
+            document.getElementById('pdfButton').addEventListener('click', function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const companyName = document.getElementById('companyName').value;
+                const grossWt = document.getElementById('grossWt').value;
+                const netWt = document.getElementById('netWt').value;
+                const currentDate = document.getElementById('currentDate').value;
+
+                // Add custom design elements
+                doc.setFontSize(20);
+                doc.text("Product Information", 10, 10);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(100);
+                doc.text(`Company Name: ${companyName}`, 10, 30);
+                doc.text(`Gross Wt: ${grossWt}`, 10, 40);
+                doc.text(`Net Wt: ${netWt}`, 10, 50);
+                doc.text(`Date: ${currentDate}`, 10, 60);
+
+                const barcodeSVG = document.getElementById('barcode');
+                if (barcodeSVG.children.length > 0) {
+                    const barcodeXML = new XMLSerializer().serializeToString(barcodeSVG.firstChild);
+                    const barcodeDataURI = 'data:image/svg+xml;base64,' + btoa(barcodeXML);
+
+                    doc.addImage(barcodeDataURI, 'SVG', 10, 70, 180, 40);
+                }
+
+                doc.setFontSize(10);
+                doc.setTextColor(150);
+                doc.text("This is a dynamically generated PDF with barcode.", 10, 120);
+
+                doc.save('barcode.pdf');
+            });
+        });
+    </script>
+</body>
+</html>
